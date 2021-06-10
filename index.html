@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Домашнее задание ШРИ по теме “Асинхронность”</title>
+</head>
+<body>
+Посмотрите код страницы и вывод в консоль браузера.
+
+<script src="shri-async-hw.js"></script>
+
+<script>
+    const {
+        AsyncArray,
+        add,
+        equal,
+    } = Homework;
+
+    const a = new AsyncArray([1, 2, 0, 4, 5]);
+
+    /**
+     * Посчитать сумму элементов массива с четными индексами.
+     *
+     * @param {AsyncArray} array
+     * @param {function(result: Number)} cb
+     */
+    function sumOfEven(array, cb) {
+        let sum = 0;
+        // 0 — четное число, поэтому начнем с него
+        let currentIndex = 0;
+
+        function cycle() {
+            console.log('Начало цикла. Текущий индекс', currentIndex);
+            // Пытаемся взять элемент с текущим четным индексом
+            array.get(currentIndex, function afterGettingElement(value) {
+                // Проверяем существует ли элемент
+                equal(value, undefined, function afterGettingValue(isElementNotExists) {
+                    if (isElementNotExists) {
+                        console.log('Элемент с таким индексом не найден.');
+                        // Если следующий элемент с четным индексом в массиве не найден, возвращаем сумму
+                        return cb(sum);
+                    } else {
+                        console.log('Значение элемента = ', value);
+                        // Если следующий элемент с четным индексом есть, добавляем его к сумме
+                        add(sum, value, function afterAddition(total) {
+                            sum = total;
+                            console.log('Промежуточная сумма = ', total);
+                            // Прибавляем 2 к индексу
+                            add(currentIndex, 2, function afterChangingIndex(newIndex) {
+                                currentIndex = newIndex;
+                                cycle();
+                            })
+                        })
+                    }
+                })
+            });
+        }
+
+        console.log('Начинаем считать сумму элементов массива с четными индексами. Исходный массив:');
+        array.print();
+        cycle();
+    }
+
+    function logSum(result) {
+        console.log('Сумма элементов с четными индексами исходного массива равна ', result);
+    }
+
+    sumOfEven(a, logSum);
+
+</script>
+</body>
+</html>
