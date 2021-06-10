@@ -31,36 +31,36 @@
         // 0 — четное число, поэтому начнем с него
         let currentIndex = 0;
 
-        function cycle() {
+        function recursiveElementAddition() {
             console.log('Начало цикла. Текущий индекс', currentIndex);
             // Пытаемся взять элемент с текущим четным индексом
             array.get(currentIndex, function afterGettingElement(value) {
                 // Проверяем существует ли элемент
                 equal(value, undefined, function afterGettingValue(isElementNotExists) {
+                    // Если следующий элемент с четным индексом в массиве не найден, возвращаем сумму
                     if (isElementNotExists) {
                         console.log('Элемент с таким индексом не найден.');
-                        // Если следующий элемент с четным индексом в массиве не найден, возвращаем сумму
                         return cb(sum);
-                    } else {
-                        console.log('Значение элемента = ', value);
-                        // Если следующий элемент с четным индексом есть, добавляем его к сумме
-                        add(sum, value, function afterAddition(total) {
-                            sum = total;
-                            console.log('Промежуточная сумма = ', total);
-                            // Прибавляем 2 к индексу
-                            add(currentIndex, 2, function afterChangingIndex(newIndex) {
-                                currentIndex = newIndex;
-                                cycle();
-                            })
-                        })
                     }
+
+                    // Если следующий элемент с четным индексом есть, добавляем его к сумме
+                    console.log('Значение элемента = ', value);
+                    add(sum, value, function afterAddition(total) {
+                        sum = total;
+                        console.log('Промежуточная сумма = ', total);
+                        // Прибавляем 2 к индексу и вновь запускаем цикл
+                        add(currentIndex, 2, function afterChangingIndex(newIndex) {
+                            currentIndex = newIndex;
+                            recursiveElementAddition();
+                        })
+                    })
                 })
             });
         }
 
         console.log('Начинаем считать сумму элементов массива с четными индексами. Исходный массив:');
         array.print();
-        cycle();
+        recursiveElementAddition();
     }
 
     function logSum(result) {
